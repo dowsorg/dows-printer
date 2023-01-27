@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>dows-print</artifactId>
+        <groupId>org.dows.saas</groupId>
+        <version>20220701-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>print-biz</artifactId>
+
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.dows.framework</groupId>
+            <artifactId>sequence-snowflake</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dows.saas</groupId>
+            <artifactId>print-crud</artifactId>
+            <version>20220701-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.dows.saas</groupId>
+            <artifactId>print-api</artifactId>
+            <version>20220701-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dows.saas</groupId>
+            <artifactId>store-boot</artifactId>
+            <version>20220701-SNAPSHOT</version>
+        </dependency>
+
+    </dependencies>
+
+
+
+</project>

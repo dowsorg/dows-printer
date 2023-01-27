@@ -34,6 +34,7 @@ public class PrinterRest {
      * @param storeId 门店id String必填
      */
     @GetMapping("/getPrintList")
+    @ApiOperation(value = "商户获取打印机")
     public Response getPrintList(String userId, String storeId) {
         return printInfoBiz.getPrintList(userId, storeId);
     }
@@ -45,6 +46,7 @@ public class PrinterRest {
      * @param storeId 门店id String必填
      */
     @GetMapping("/getPrintAttrList")
+    @ApiOperation(value = "选择打印类型")
     public Response getPrintAttrList(String userId, String storeId) {
         return printInfoBiz.getPrintAttrList(userId, storeId);
     }
@@ -56,6 +58,7 @@ public class PrinterRest {
      * @param storeId 门店id String必填
      */
     @GetMapping("/getPrintAreaList")
+    @ApiOperation(value = "选择打印区域")
     public Response getPrintAreaList(String userId, String storeId) {
         return printInfoBiz.getPrintAreaList(userId, storeId);
     }
@@ -79,6 +82,7 @@ public class PrinterRest {
      * @return
      */
     @GetMapping("/getPrintStatus")
+    @ApiOperation(value = "查看打印机状态")
     public Response getPrintStatus(String printSn) {
         return printInfoBiz.getPrintStatus(printSn);
     }
@@ -90,6 +94,7 @@ public class PrinterRest {
      * @param printSn 打印机序列号 String必填
      */
     @PostMapping("/printTest")
+    @ApiOperation(value = "测试打印机")
     public Response printTest(String userId, String printSn) {
         return printInfoBiz.printTest(userId, printSn);
     }
@@ -101,6 +106,7 @@ public class PrinterRest {
      * @param orderId 订单id String必填
      */
     @PostMapping("/printMasterOrder")
+    @ApiOperation(value = "打印总单")
     public Response printMasterOrder(String userId, String orderId) {
         return printInfoBiz.printMasterOrder(userId, orderId);
     }
@@ -112,6 +118,7 @@ public class PrinterRest {
      * @param orderId 订单id String必填
      */
     @PostMapping("/printMakeOrder")
+    @ApiOperation(value = "打印制作单")
     public Response printMakeOrder(String userId, String orderId) {
         return printInfoBiz.printMakeOrder(userId, orderId);
     }
@@ -123,6 +130,7 @@ public class PrinterRest {
      * @param orderId 订单id String必填
      */
     @PostMapping("/printAddOrder")
+    @ApiOperation(value = "打印加菜单")
     public Response printAddOrder(String userId, String orderId) {
         return printInfoBiz.printAddOrder(userId, orderId);
     }
@@ -134,6 +142,7 @@ public class PrinterRest {
      * @param orderId 订单id String必填
      */
     @PostMapping("/printRemoveOrder")
+    @ApiOperation(value = "打印退菜单")
     public Response printRemoveOrder(String userId, String orderId) {
         return printInfoBiz.printRemoveOrder(userId, orderId);
     }
@@ -145,6 +154,7 @@ public class PrinterRest {
      * @param orderId 订单id String必填
      */
     @PostMapping("/printCheckoutOrder")
+    @ApiOperation(value = "打印结账单")
     public Response printCheckoutOrder(String userId, String orderId) {
         return printInfoBiz.printCheckoutOrder(userId, orderId);
     }

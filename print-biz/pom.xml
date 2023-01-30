@@ -29,7 +29,7 @@
 
         <dependency>
             <groupId>org.dows.saas</groupId>
-            <artifactId>store-boot</artifactId>
+            <artifactId>store-biz</artifactId>
             <version>20220701-SNAPSHOT</version>
         </dependency>
 

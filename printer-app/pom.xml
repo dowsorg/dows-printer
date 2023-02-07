@@ -11,15 +11,19 @@
     <artifactId>printer-app</artifactId>
 
 
-
     <dependencies>
         <dependency>
             <artifactId>printer-rest</artifactId>
             <groupId>org.dows.saas</groupId>
             <version>20220701</version>
         </dependency>
-    </dependencies>
 
+        <dependency>
+            <groupId>org.dows.saas</groupId>
+            <artifactId>printer-config</artifactId>
+            <version>20220701</version>
+        </dependency>
+    </dependencies>
 
 
 </project>

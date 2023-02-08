@@ -2,37 +2,28 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>dows-print</artifactId>
+        <artifactId>dows-printer</artifactId>
         <groupId>org.dows.saas</groupId>
-        <version>20220701-SNAPSHOT</version>
+        <version>20220701</version>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>print-biz</artifactId>
+    <artifactId>printer-biz</artifactId>
+    <groupId>org.dows.saas</groupId>
+    <version>20220701</version>
 
 
 
     <dependencies>
         <dependency>
-            <groupId>org.dows.framework</groupId>
-            <artifactId>sequence-snowflake</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
+            <artifactId>printer-crud</artifactId>
             <groupId>org.dows.saas</groupId>
-            <artifactId>print-crud</artifactId>
-            <version>20220701-SNAPSHOT</version>
+            <version>20220701</version>
         </dependency>
-        <dependency>
-            <groupId>org.dows.saas</groupId>
-            <artifactId>print-api</artifactId>
-            <version>20220701-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.dows.saas</groupId>
-            <artifactId>store-biz</artifactId>
-            <version>20220701-SNAPSHOT</version>
-        </dependency>
-
     </dependencies>
 
 

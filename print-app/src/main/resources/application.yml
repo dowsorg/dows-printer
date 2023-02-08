@@ -6,14 +6,14 @@ server:
     threads:
       io: 4
       worker: 32
-#  servlet:
-#    context-path: /${spring.application.name}
+  servlet:
+    context-path: /${spring.application.name}
 
 
 spring:
   application:
     name: dows-print
   profiles:
-    include: mysql,mybatis,mvc,redis
+    include: mysql,mybatis,mvc,redis,third
     active: sit
 #debug: true

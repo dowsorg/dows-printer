@@ -36,7 +36,7 @@ public class SwaggerConfig {
                 .enable(true)
                 .select()
                 //.apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
-                .apis(RequestHandlerSelectors.basePackage("org.dows.print.rest"))
+                .apis(RequestHandlerSelectors.basePackage("org.dows.printer.rest"))
                 .paths(PathSelectors.any())
                 .build()
                 .groupName("打印机管理");
@@ -46,7 +46,7 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         Contact contact = new Contact("lait", "", "lait.zhang@gmail.com");
         return new ApiInfoBuilder()
-                .title("dows saas print")
+                .title("dows saas printer")
                 .contact(contact)
                 .version("3.0")
                 .description("打印机")

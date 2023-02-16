@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <parent>
-        <artifactId>dows-parent</artifactId>
+        <artifactId>dows-frameworks</artifactId>
         <groupId>org.dows.framework</groupId>
         <version>20220701-SNAPSHOT</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
     <artifactId>dows-printer</artifactId>
     <groupId>org.dows.saas</groupId>
@@ -15,13 +13,14 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>print-crud</module>
-        <module>print-biz</module>
-        <module>print-pojo</module>
-        <module>print-api</module>
-        <module>print-rest</module>
-        <module>print-config</module>
-        <module>print-app</module>
-        <module>print-boot</module>
+        <module>printer-crud</module>
+        <module>printer-biz</module>
+        <module>printer-pojo</module>
+        <module>printer-api</module>
+        <module>printer-rest</module>
+        <module>printer-app</module>
+        <module>printer-boot</module>
+        <module>printer-config</module>
     </modules>
+
 </project>

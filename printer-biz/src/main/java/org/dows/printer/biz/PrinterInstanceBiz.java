@@ -127,14 +127,17 @@ public class PrinterInstanceBiz {
      * @return
      */
     public Response<JSONObject> getPrinterStatus(String sn) {
-        JSONObject res = null;
         try {
-            res = juhePrintUtils.getPrintStatus(sn);
-            log.info("聚合呗-查看打印机状态  res:{}", res);
+            JSONObject res = juhePrintUtils.getPrintStatus(sn);
+            if (ObjectUtils.isNotEmpty(res) && res.getInteger("code") == 0) {
+                return Response.ok(res.getJSONObject("data"));
+            }else{
+                return Response.fail(res.getString("message"));
+            }
         } catch (Exception e) {
             log.error("查看打印机状态异常" + e.getMessage(), e);
+            return Response.fail(e.getMessage());
         }
-        return Response.ok(res);
     }
 
 

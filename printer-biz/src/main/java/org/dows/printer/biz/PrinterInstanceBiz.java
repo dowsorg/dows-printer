@@ -130,9 +130,6 @@ public class PrinterInstanceBiz {
         JSONObject res = null;
         try {
             res = juhePrintUtils.getPrintStatus(sn);
-            if (ObjectUtils.isNotEmpty(res) && res.getInteger("code") == 0) {
-                res = res.getJSONObject("data");
-            }
             log.info("聚合呗-查看打印机状态  res:{}", res);
         } catch (Exception e) {
             log.error("查看打印机状态异常" + e.getMessage(), e);
@@ -290,14 +287,17 @@ public class PrinterInstanceBiz {
             printerNos.forEach(n -> {
                 log.info("打印机{}异步更新状态开始", n);
                 //查询打印机状态
-                JSONObject printerStatus = getPrinterStatus(n).getData();
-                log.info("打印机{}异步更新状态返回结果：{}", n, printerStatus);
-                Integer onlineStatus = printerStatus.getInteger("onlineStatus");
-                Integer workStatus = printerStatus.getInteger("workStatus");
-                printerStateService.lambdaUpdate().eq(PrinterStateEntity::getPrinterNo, n)
-                        .set(PrinterStateEntity::getOnlineStatus, onlineStatus)
-                        .set(PrinterStateEntity::getWorkStatus, workStatus)
-                        .update();
+                JSONObject res = juhePrintUtils.getPrintStatus(n);
+                //查询成功 进行更新
+                if (ObjectUtils.isNotEmpty(res) && res.getInteger("code") == 0) {
+                    JSONObject printerStatus = res.getJSONObject("data");
+                    Integer onlineStatus = printerStatus.getInteger("onlineStatus");
+                    Integer workStatus = printerStatus.getInteger("workStatus");
+                    printerStateService.lambdaUpdate().eq(PrinterStateEntity::getPrinterNo, n)
+                            .set(PrinterStateEntity::getOnlineStatus, onlineStatus)
+                            .set(PrinterStateEntity::getWorkStatus, workStatus)
+                            .update();
+                }
             });
         } catch (Exception e) {
             log.error("异步拉起打印" + e.getMessage(), e);
@@ -305,12 +305,13 @@ public class PrinterInstanceBiz {
     }
 
     private Integer setPrinterStatus(String printerNo) {
-        Integer printerStatus = 5;
+        Integer printerStatus = -1;
         try {
             //调用接口查询状态
-            JSONObject data = getPrinterStatus(printerNo).getData();
-            if (ObjectUtils.isNotEmpty(data)) {
-                printerStatus = data.getInteger("workStatus");
+            JSONObject res = juhePrintUtils.getPrintStatus(printerNo);
+            //查询成功 进行更新
+            if (ObjectUtils.isNotEmpty(res) && res.getInteger("code") == 0) {
+                printerStatus = res.getJSONObject("data").getInteger("workStatus");
             } else {
                 //打印机状态-直接库表查询
                 printerStatus = printerStateService.lambdaQuery()
@@ -318,6 +319,7 @@ public class PrinterInstanceBiz {
                         .last("limit 1")
                         .one()
                         .getWorkStatus();
+                log.info("列表打印机printerStatus:{}", printerStatus);
             }
         } catch (Exception e) {
             log.info("打印机列表状态获取异常: {}", e.getMessage());

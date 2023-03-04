@@ -119,10 +119,10 @@ public class JuhePrintUtils {
     /**
      * 添加打印机
      *
-     * @param sn   打印机编号	string	是
-     * @param key  设备秘钥	string	是
-     * @param name 设备名称或备注	string	否	最大长度 50
-     * @param lang 优先使用语言	int	否	13-拉丁文；16-中文; 只有设备支持对应语言时才生效，不支持时使用默认设置
+     * @param -sn   打印机编号	string	是
+     * @param -key  设备秘钥	string	是
+     * @param -name 设备名称或备注	string	否	最大长度 50
+     * @param -lang 优先使用语言	int	否	13-拉丁文；16-中文; 只有设备支持对应语言时才生效，不支持时使用默认设置
      * @return
      */
     public JSONObject addPrinter(List<DaquPrintVo> voList) {
@@ -235,7 +235,7 @@ public class JuhePrintUtils {
     /**
      * 请求header组装参数
      *
-     * @param paramters
+     * @param bodyJson
      * @return
      */
     private Map<String, String> getHeader(String bodyJson) {

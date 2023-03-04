@@ -87,8 +87,8 @@ public class PrinterInstanceEntity implements CrudEntity {
     @ApiModelProperty("打印机位置")
     private String printerSeat;
     @ApiModelProperty("打印类型")
-    private String printerType;
+    private String printeType;
     @ApiModelProperty("打印区域")
-    private String printerArea;
+    private String printeArea;
 }
 

@@ -75,12 +75,12 @@ public class PrinterInstanceForm {
     private String storeId;
 
 
-    //打印机位置
-    private String printerseat;
-    //打印类型
-    private String printerType;
-    //打印区域
-    private String printerArea;
+    @ApiModelProperty("打印机位置")
+    private String printerSeat;
+    @ApiModelProperty("打印类型")
+    private String printeType;
+    @ApiModelProperty("打印区域")
+    private String printeArea;
 
 
 }

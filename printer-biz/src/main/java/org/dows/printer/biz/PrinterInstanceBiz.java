@@ -185,31 +185,31 @@ public class PrinterInstanceBiz {
     /**
      * 进行打印
      *
-     * @param sn      打印机编号
-     * @param content 内容
+     * @param -sn      打印机编号
+     * @param -content 内容
      */
     public Response printByContent(PrintContentRequest printContentRequest) {
-        syncPrint(printContentRequest.getPrintSn(), "", printContentRequest.getContent());
+        syncPrint(printContentRequest.getPrinterNo(), "", printContentRequest.getContent());
         return Response.ok("打印中");
     }
 
     /**
      * 进行打印
      *
-     * @param sn      打印机编号
-     * @param content 内容
+     * @param -sn      打印机编号
+     * @param -content 内容
      */
     public Response printByContent(PrintContentDTO printContentDTO) {
-        syncPrint(printContentDTO.getPrintSn(), "", printContentDTO.getContent());
+        syncPrint(printContentDTO.getPrinterNo(), "", printContentDTO.getContent());
         return Response.ok("打印中");
     }
 
     /**
      * 异步通知小票打印状态
      *
-     * @param type  回调消息类型  5 打印请求状态变更, 6 设备状态发生更新(开发中)
-     * @param rtime 回调时间(unix timestamp 秒)
-     * @param data  回调业务内容  json string 例: "{"printId":"819001823847712734","status":"0"}" [0 待打印, 1 打印中, 2 成功, 3 失败, 4 已取消]
+     * @param -type  回调消息类型  5 打印请求状态变更, 6 设备状态发生更新(开发中)
+     * @param -rtime 回调时间(unix timestamp 秒)
+     * @param -data  回调业务内容  json string 例: "{"printId":"819001823847712734","status":"0"}" [0 待打印, 1 打印中, 2 成功, 3 失败, 4 已取消]
      */
     public JSONObject synPrintNotice(PrintNoticeDTO printNoticeDTO) {
         JSONObject result = new JSONObject();

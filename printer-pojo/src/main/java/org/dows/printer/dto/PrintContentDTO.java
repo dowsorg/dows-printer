@@ -22,7 +22,7 @@ import lombok.experimental.Accessors;
 public class PrintContentDTO {
 
     @ApiModelProperty("打印机编号")
-    private String printSn;
+    private String printerNo;
 
     @ApiModelProperty("打印机编号")
     private String content;

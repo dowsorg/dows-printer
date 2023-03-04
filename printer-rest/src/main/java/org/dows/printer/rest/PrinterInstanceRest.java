@@ -54,24 +54,24 @@ public class PrinterInstanceRest implements MybatisCrudRest<PrinterInstanceForm,
     /**
      * 查看打印机状态
      *
-     * @param printSn 设备编号
+     * @param printerNo 设备编号
      * @return
      */
     @GetMapping("/getPrinterStatus")
     @ApiOperation(value = "查看打印机状态")
-    public Response getPrinterStatus(String printSn) {
-        return printerInstanceBiz.getPrinterStatus(printSn);
+    public Response getPrinterStatus(String printerNo) {
+        return printerInstanceBiz.getPrinterStatus(printerNo);
     }
 
     /**
      * 测试打印机
      *
-     * @param printSn 打印机序列号 String必填
+     * @param printerNo 打印机序列号 String必填
      */
     @PostMapping("/printerTest")
     @ApiOperation(value = "测试打印机")
-    public Response printerTest(String printSn) {
-        return printerInstanceBiz.printerTest(printSn);
+    public Response printerTest(String printerNo) {
+        return printerInstanceBiz.printerTest(printerNo);
     }
 
 

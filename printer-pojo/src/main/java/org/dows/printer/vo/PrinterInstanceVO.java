@@ -31,18 +31,17 @@ public class PrinterInstanceVO {
     @ApiModelProperty("打印机ID")
     private String printerId;
 
-
     @ApiModelProperty("通道名")
     private String channelName;
-
 
     @ApiModelProperty("打印机名称")
     private String printerName;
 
+    @ApiModelProperty("打印机位置")
+    private String printerSeat;
 
-    @ApiModelProperty("打印类型")
-    private String printerAttrs;
-
+    @ApiModelProperty("打印机位置")
+    private String printeType;
 
     @ApiModelProperty("打印机状态 0 就绪, 1 打印中, 2 缺纸, 3 过温, 4 打印故障 -1 当前离线")
     private Integer printerStatus;

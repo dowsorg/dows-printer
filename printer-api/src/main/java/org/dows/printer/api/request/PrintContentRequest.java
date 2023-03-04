@@ -21,7 +21,7 @@ import lombok.experimental.Accessors;
 public class PrintContentRequest {
 
     @ApiModelProperty("打印机编号")
-    private String printSn;
+    private String printerNo;
 
     @ApiModelProperty("打印机编号")
     private String content;

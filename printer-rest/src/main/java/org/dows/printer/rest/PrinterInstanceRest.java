@@ -13,6 +13,7 @@ import org.dows.printer.dto.PrintNoticeDTO;
 import org.dows.printer.entity.PrinterInstanceEntity;
 import org.dows.printer.form.PrinterInstanceForm;
 import org.dows.printer.service.PrinterInstanceService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -47,7 +48,7 @@ public class PrinterInstanceRest implements MybatisCrudRest<PrinterInstanceForm,
      */
     @PostMapping("/bindPrinter")
     @ApiOperation(value = "打印机绑定")
-    public Response bindPrinter(@RequestBody PrinterInstanceEntity entity) {
+    public Response bindPrinter(@Validated @RequestBody PrinterInstanceEntity entity) {
         return printerInstanceBiz.bindPrinter(entity);
     }
 
@@ -100,6 +101,17 @@ public class PrinterInstanceRest implements MybatisCrudRest<PrinterInstanceForm,
     @ApiOperation(value = "异步通知小票打印状态")
     public JSONObject synPrintNotice(@RequestBody PrintNoticeDTO printNoticeDTO) {
         return printerInstanceBiz.synPrintNotice(printNoticeDTO);
+    }
+
+    /**
+     * 打印总单
+     *
+     * @param orderNo 订单号 String必填
+     */
+    @PostMapping("/printMasterOrder")
+    @ApiOperation(value = "打印总单")
+    public Response printMasterOrder(@RequestParam String orderNo) {
+        return printerInstanceBiz.printMasterOrder(orderNo);
     }
 
 

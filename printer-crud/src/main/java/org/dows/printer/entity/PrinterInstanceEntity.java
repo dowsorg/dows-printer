@@ -13,6 +13,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import org.dows.framework.crud.mybatis.CrudEntity;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 /**
@@ -50,12 +51,14 @@ public class PrinterInstanceEntity implements CrudEntity {
     private String printerName;
 
     @ApiModelProperty("打印机秘钥")
+    @NotBlank(message = "打印机秘钥不可为空")
     private String printerKey;
 
     @ApiModelProperty("打印机型号")
     private String printerModel;
 
     @ApiModelProperty("打印机编号")
+    @NotBlank(message = "打印机编号不可为空")
     private String printerNo;
 
     @ApiModelProperty("打印机描述")
@@ -77,14 +80,15 @@ public class PrinterInstanceEntity implements CrudEntity {
     @ApiModelProperty("逻辑删除")
     private Boolean deleted;
 
-    @ApiModelProperty("打印制作单 1是 2否")
+    @ApiModelProperty("打印制作单 1是 0否")
     private Integer makingStatus;
 
     @ApiModelProperty("门店id")
+    @NotBlank(message = "门店id不可为空")
     private String storeId;
 
 
-    @ApiModelProperty("打印机位置")
+    @ApiModelProperty("打印机位置 1前厅  2后厨")
     private String printerSeat;
     @ApiModelProperty("打印类型")
     private String printeType;

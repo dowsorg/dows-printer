@@ -24,6 +24,16 @@
             <groupId>org.dows.saas</groupId>
             <version>20220701</version>
         </dependency>
+        <dependency>
+            <artifactId>order-api</artifactId>
+            <groupId>org.dows.saas</groupId>
+            <version>20220701-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <artifactId>store-api</artifactId>
+            <groupId>org.dows.saas</groupId>
+            <version>20220701-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 

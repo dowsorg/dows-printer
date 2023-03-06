@@ -298,7 +298,7 @@ public class PrinterBiz {
     public Response getModelContent(JuhePrintContentVo printContentVo) {
         String result = "";
         try {
-            int type = printContentVo.getType();
+            Integer type = printContentVo.getType();
             if (ObjectUtils.isEmpty(type)) {
                 return Response.fail("小票类型不能为空");
             }

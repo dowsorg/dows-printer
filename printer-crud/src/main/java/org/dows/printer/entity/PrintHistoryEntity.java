@@ -58,7 +58,7 @@ public class PrintHistoryEntity implements CrudEntity {
     @ApiModelProperty("打印时间")
     private String printTime;
 
-    @ApiModelProperty("打印状态码")
+    @ApiModelProperty("打印状态码  0 待打印，1 打印中，2 打印成功 3 打印失败")
     private String stateCode;
 
     @ApiModelProperty("状态描述")
@@ -66,6 +66,9 @@ public class PrintHistoryEntity implements CrudEntity {
 
     @ApiModelProperty("是否打印成功")
     private Boolean flag;
+
+    @ApiModelProperty("订单号")
+    private String orderNo;
 
     @ApiModelProperty("打印请求受理ID")
     private Long printId;

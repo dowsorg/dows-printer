@@ -114,6 +114,67 @@ public class PrinterInstanceRest implements MybatisCrudRest<PrinterInstanceForm,
         return printerInstanceBiz.printMasterOrder(orderNo);
     }
 
+    /**
+     * 打印制作单
+     *
+     * @param orderNo     订单id String必填
+     * @param orderItemId 订单项id 必填
+     */
+    @PostMapping("/printMakeOrder")
+    @ApiOperation(value = "打印制作单")
+    public Response printMakeOrder(@RequestParam String orderNo, @RequestParam Long orderItemId) {
+        return printerInstanceBiz.printMakeOrder(orderNo, orderItemId, 3);
+    }
+
+    /**
+     * 打印加菜单
+     *
+     * @param orderNo     订单id String必填
+     * @param orderItemId 订单项id 必填
+     */
+    @PostMapping("/printAddOrder")
+    @ApiOperation(value = "打印加菜单")
+    public Response printAddOrder(@RequestParam String orderNo, @RequestParam Long orderItemId) {
+        return printerInstanceBiz.printMakeOrder(orderNo, orderItemId, 4);
+    }
+
+    /**
+     * 打印退菜单
+     *
+     * @param orderNo     订单id String必填
+     * @param orderItemId 订单项id 必填
+     */
+    @PostMapping("/printRemoveOrder")
+    @ApiOperation(value = "打印退菜单")
+    public Response printRemoveOrder(@RequestParam String orderNo, @RequestParam Long orderItemId) {
+        return printerInstanceBiz.printMakeOrder(orderNo, orderItemId, 5);
+    }
+
+    /**
+     * 打印结账单
+     *
+     * @param orderNo 订单id String必填
+     */
+    @PostMapping("/printCheckoutOrder")
+    @ApiOperation(value = "打印结账单")
+    public Response printCheckoutOrder(@RequestParam String orderNo) {
+        return printerInstanceBiz.printMasterOrder(orderNo);
+    }
+
+
+    /**
+     * 查看打印状态
+     *
+     * @param printerNo 设备编号
+     * @param printId   打印id
+     * @return
+     */
+    @GetMapping("/getPrintStatus")
+    @ApiOperation(value = "查看打印状态")
+    public Response getPrintStatus(String printerNo, Long printId) {
+        return printerInstanceBiz.getPrintStatus(printerNo, printId);
+    }
+
 
 }
 

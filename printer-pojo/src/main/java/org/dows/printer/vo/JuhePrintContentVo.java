@@ -41,7 +41,7 @@ public class JuhePrintContentVo {
     private String phone;
 
     @ApiModelProperty("小票类型    1-总单  2-结账单（优惠信息）  3、制作单  4、加菜  5退菜")
-    private int type;
+    private Integer type;
 
     @ApiModelProperty("优惠信息")
     private String affiliatePriceJson;

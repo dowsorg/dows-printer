@@ -177,7 +177,7 @@ public class JuhePrintUtils {
      * @param sn 设备编号
      * @return
      */
-    public JSONObject getPrintStatus(String sn) {
+    public JSONObject getPrinterStatus(String sn) {
 
         JSONObject res = null;
 
@@ -228,6 +228,35 @@ public class JuhePrintUtils {
 
         } catch (Exception e) {
             log.error("打印小票异常" + e.getMessage(), e);
+        }
+        return res;
+    }
+
+    /**
+     * 查看打印小票
+     *
+     * @param sn      打印机编号	string	是
+     * @param printId 打印id		是
+     * @return
+     */
+    public JSONObject getPrintStatus(String sn, Long printId) {
+
+        JSONObject res = null;
+
+        try {
+            Map<String, Object> parameters = Maps.newHashMap();
+            parameters.put("sn", sn);
+            parameters.put("printId", printId);
+            String bodyJson = PandStringUtils.getJsonObj(parameters);
+
+            //返回示例："code": 0,"data": {"status": 0}, "message": "OK"
+            // status	打印状态	0 待打印，1 打印中，2 打印成功 3 打印失败
+            res = juheHttp(getPrintStatusUrl, bodyJson);
+
+            log.info("聚合呗-查看打印小票  res:{}", res);
+
+        } catch (Exception e) {
+            log.error("查看打印小票异常" + e.getMessage(), e);
         }
         return res;
     }

@@ -162,9 +162,9 @@ public class PrinterBiz {
             //开始打印
             //菜品
             List<DetailDishesVo> voList = new LinkedList<>();
-            voList.add(new DetailDishesVo("龙虾泡饭", 1, 38.00, null));
-            voList.add(new DetailDishesVo("芝士焗咖喱牛腩牛腩饭", 1, 38.00, null));
-            voList.add(new DetailDishesVo("炙烤猪扒饭", 1, 38.00, null));
+            voList.add(new DetailDishesVo("龙虾泡饭", 1, 38.00, null, null));
+            voList.add(new DetailDishesVo("芝士焗咖喱牛腩牛腩饭", 1, 38.00, null, null));
+            voList.add(new DetailDishesVo("炙烤猪扒饭", 1, 38.00, null, null));
             //组装打印内容-总单
             JuhePrintContentVo JuhePrintContentVo = new JuhePrintContentVo("五天日记【松江印象城店】", "A01", "6", "刘大牙", voList, "98.60", "苏庆北路246号印象城B1-901", "021-09001234", 1, null);
             String content = JuhePrintContentUtils.getMasterContent(JuhePrintContentVo);

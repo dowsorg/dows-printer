@@ -18,4 +18,7 @@ public class DetailDishesVo {
 	//备注
 	private String comment;
 
+	//打印机编号
+	private String printerNo;
+
 }

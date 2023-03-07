@@ -78,9 +78,9 @@ public class PrinterInstanceForm {
     @ApiModelProperty("打印机位置")
     private String printerSeat;
     @ApiModelProperty("打印类型")
-    private String printeType;
+    private String printType;
     @ApiModelProperty("打印区域")
-    private String printeArea;
+    private String printArea;
 
 
 }

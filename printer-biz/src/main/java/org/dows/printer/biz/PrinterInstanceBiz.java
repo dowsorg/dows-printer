@@ -28,6 +28,7 @@ import org.dows.printer.utils.third.print.JuhePrintContentUtils;
 import org.dows.printer.utils.third.print.JuhePrintUtils;
 import org.dows.printer.vo.DetailDishesVo;
 import org.dows.printer.vo.JuhePrintContentVo;
+import org.dows.printer.vo.PrintTypeVo;
 import org.dows.printer.vo.PrinterInstanceVO;
 import org.dows.store.api.StoreInstanceApi;
 import org.dows.store.api.response.StoreResponse;
@@ -196,9 +197,9 @@ public class PrinterInstanceBiz {
             //开始打印
             //菜品
             List<DetailDishesVo> voList = new LinkedList<>();
-            voList.add(new DetailDishesVo("龙虾泡饭", 1, 38.00, null));
-            voList.add(new DetailDishesVo("芝士焗咖喱牛腩牛腩饭", 1, 38.00, null));
-            voList.add(new DetailDishesVo("炙烤猪扒饭", 1, 38.00, null));
+            voList.add(new DetailDishesVo("龙虾泡饭", 1, 38.00, null, null));
+            voList.add(new DetailDishesVo("芝士焗咖喱牛腩牛腩饭", 1, 38.00, null, null));
+            voList.add(new DetailDishesVo("炙烤猪扒饭", 1, 38.00, null, null));
             //组装打印内容-总单
             JuhePrintContentVo JuhePrintContentVo = new JuhePrintContentVo("五天日记【松江印象城店】", "A01", "6", "刘大牙", voList, "98.60", "苏庆北路246号印象城B1-901", "021-09001234", 1, null);
             String content = JuhePrintContentUtils.getMasterContent(JuhePrintContentVo);
@@ -291,11 +292,11 @@ public class PrinterInstanceBiz {
             //获取订单的商铺id
             String storeId = orderInstanceInfoVo.getStoreId();
             //菜品
-            List<DetailDishesVo> voList = orderInstanceInfoVo.getGoodSpuInfoList().stream().map(g -> new DetailDishesVo(g.getGoodName(), g.getQuantity(), g.getPrice().doubleValue(), g.getRemark())).collect(Collectors.toList());
+            List<DetailDishesVo> voList = orderInstanceInfoVo.getGoodSpuInfoList().stream().map(g -> new DetailDishesVo(g.getGoodName(), g.getQuantity(), g.getPrice().doubleValue(), g.getRemark(), null)).collect(Collectors.toList());
             //获取店铺信息
             StoreResponse storeResponse = storeInstanceApi.getStoreById(storeId);
             //组装打印内容-总单
-            JuhePrintContentVo JuhePrintContentVo = new JuhePrintContentVo(
+            JuhePrintContentVo juhePrintContentVo = new JuhePrintContentVo(
                     storeResponse.getName(),
                     orderInstanceInfoVo.getTableNo(),
                     "" + orderInstanceInfoVo.getPeoples(),
@@ -330,61 +331,9 @@ public class PrinterInstanceBiz {
             Map<String, String> printMap = new ConcurrentHashMap<String, String>();
             //匹配打印机和打印内容
             //前厅判断
-            if (CollectionUtils.isNotEmpty(printerQT)) {
-                if (printerQT.size() == 1) {
-                    //获取打印内容
-                    PrinterInstanceEntity pi = printerQT.get(0);
-                    String content = JuhePrintContentUtils.getContent(JuhePrintContentVo);
-                    printMap.put(pi.getPrinterNo(), content);
-                    //是否打印制作单
-                    if (1 == pi.getMakingStatus()) {
-                        voList.forEach(v -> {
-                            List<DetailDishesVo> dv = new ArrayList<>();
-                            dv.add(v);
-                            JuhePrintContentVo.setDishesVoList(dv);
-                            JuhePrintContentVo.setType(3);
-                            printMap.put(pi.getPrinterNo(), JuhePrintContentUtils.getContent(JuhePrintContentVo));
-                        });
-                    }
-                } else {
-                    //获取桌号
-                    String tableNo = orderInstanceInfoVo.getTableNo();
-                    //根据桌号获取桌号对应桌号区域
-                    String roomName = "tableNo";
-                    //筛选对应打印机
-                    printerQT.stream()
-                            .filter(qt -> qt.getPrinteArea().contains(roomName))
-                            .collect(Collectors.toList())
-                            .forEach(p -> {
-                                //获取打印内容
-                                String content = JuhePrintContentUtils.getContent(JuhePrintContentVo);
-                                printMap.put(p.getPrinterNo(), content);
-                                //是否打印制作单
-                                if (1 == p.getMakingStatus()) {
-                                    voList.forEach(v -> {
-                                        List<DetailDishesVo> dv = new ArrayList<>();
-                                        dv.add(v);
-                                        JuhePrintContentVo.setDishesVoList(dv);
-                                        JuhePrintContentVo.setType(3);
-                                        printMap.put(p.getPrinterNo(), JuhePrintContentUtils.getContent(JuhePrintContentVo));
-                                    });
-                                }
-                            });
-                }
-            }
+            setPrintQT(printMap, printerQT, juhePrintContentVo, voList, orderInstanceInfoVo);
             //后厨判断
-            if (CollectionUtils.isNotEmpty(printerHC)) {
-                if (printerHC.size() == 1) {
-                    //获取打印内容
-                    String content = JuhePrintContentUtils.getContent(JuhePrintContentVo);
-                    printMap.put(printerHC.get(0).getPrinterNo(), content);
-                } else {
-                    //获取菜品类型
-
-
-                }
-            }
-
+            setPrintHC(printMap, printerHC, juhePrintContentVo, voList, orderInstanceInfoVo);
 
             //进行打印
             if (!printMap.isEmpty()) {
@@ -395,6 +344,117 @@ public class PrinterInstanceBiz {
             log.error("状态异常" + e.getMessage(), e);
             return Response.fail("打印失败");
         }
+    }
+
+    private Map<String, String> setPrintQT(Map<String, String> printMap, List<PrinterInstanceEntity> printerQT, JuhePrintContentVo juhePrintContentVo, List<DetailDishesVo> voList, OrderInstanceInfoVo orderInstanceInfoVo) {
+        //前厅判断
+        if (CollectionUtils.isNotEmpty(printerQT)) {
+            if (printerQT.size() == 1) {
+                //获取打印内容
+                PrinterInstanceEntity pi = printerQT.get(0);
+                String content = JuhePrintContentUtils.getContent(juhePrintContentVo);
+                printMap.put(pi.getPrinterNo(), content);
+                //是否打印制作单
+                if (1 == pi.getMakingStatus()) {
+                    voList.forEach(v -> {
+                        List<DetailDishesVo> dv = new ArrayList<>();
+                        dv.add(v);
+                        juhePrintContentVo.setDishesVoList(dv);
+                        juhePrintContentVo.setType(3);
+                        printMap.put(pi.getPrinterNo(), JuhePrintContentUtils.getContent(juhePrintContentVo));
+                    });
+                }
+            } else {
+                //获取桌号
+                String tableNo = orderInstanceInfoVo.getTableNo();
+                //根据桌号获取桌号对应桌号区域
+                String roomName = "tableNo";
+                //筛选对应打印机
+                printerQT.stream()
+                        .filter(qt -> qt.getPrintArea().contains(roomName))
+                        .collect(Collectors.toList())
+                        .forEach(p -> {
+                            //获取打印内容
+                            String content = JuhePrintContentUtils.getContent(juhePrintContentVo);
+                            printMap.put(p.getPrinterNo(), content);
+                            //是否打印制作单
+                            if (1 == p.getMakingStatus()) {
+                                voList.forEach(v -> {
+                                    List<DetailDishesVo> dv = new ArrayList<>();
+                                    dv.add(v);
+                                    juhePrintContentVo.setDishesVoList(dv);
+                                    juhePrintContentVo.setType(3);
+                                    printMap.put(p.getPrinterNo(), JuhePrintContentUtils.getContent(juhePrintContentVo));
+                                });
+                            }
+                        });
+            }
+        }
+        return printMap;
+    }
+
+    private Map<String, String> setPrintHC(Map<String, String> printMap, List<PrinterInstanceEntity> printerHC, JuhePrintContentVo juhePrintContentVo, List<DetailDishesVo> voList, OrderInstanceInfoVo orderInstanceInfoVo) {
+        //后厨判断
+        if (CollectionUtils.isNotEmpty(printerHC)) {
+            if (printerHC.size() == 1) {
+                //获取打印内容
+                String content = JuhePrintContentUtils.getContent(juhePrintContentVo);
+                printMap.put(printerHC.get(0).getPrinterNo(), content);
+            } else {
+                //打印机类型与编号
+                Map<String, String> printTypeMap = new ConcurrentHashMap<String, String>();
+                printerHC.forEach(p -> {
+                    String printType = p.getPrintType();
+                    if (ObjectUtils.isNotEmpty(printType)) {
+                        String[] split = printType.split(",");
+                        for (String s : split) {
+                            printTypeMap.put(s, p.getPrinterNo());
+                        }
+                    }
+                });
+                //获取菜品类型
+                List<Long> orderItemIds = orderInstanceInfoVo.getGoodSpuInfoList().stream().map(g -> g.getOrderItemId()).collect(Collectors.toList());
+                //菜品与类型
+                List<PrintTypeVo> spuPrintType = printerInstanceService.getSpuPrintType(Wrappers.query().in("oi.id", orderItemIds).groupBy("oi.spu_name"));
+                Map<String, String> categoryMap = spuPrintType.stream().collect(Collectors.toMap(PrintTypeVo::getSpuName, PrintTypeVo::getCategoryName));
+                //将菜品通过类型与打印机类型匹配
+                for (DetailDishesVo dishesVo : voList) {
+                    String category = categoryMap.get(dishesVo.getDishesName());
+                    if (ObjectUtils.isNotEmpty(category)) {
+                        String[] split = category.split(",");
+                        for (String s : split) {
+                            String printerNo = printTypeMap.get(s);
+                            if (ObjectUtils.isNotEmpty(printTypeMap.get(s))) {
+                                dishesVo.setPrinterNo(printTypeMap.get(s));
+                                break;
+                            }
+                        }
+                    }
+                    if (ObjectUtils.isEmpty(dishesVo.getPrinterNo())) {
+                        dishesVo.setPrinterNo(printerHC.get(0).getPrinterNo());
+                    }
+                }
+                //获取打印机对应打印菜单
+                Map<String, List<DetailDishesVo>> printerHCMap = voList.stream().collect(Collectors.groupingBy(DetailDishesVo::getPrinterNo));
+                printerHC.forEach(p -> {
+                    List<DetailDishesVo> detailDishesVos = printerHCMap.get(p.getPrinterNo());
+                    if (CollectionUtils.isNotEmpty(detailDishesVos)) {
+                        juhePrintContentVo.setDishesVoList(detailDishesVos);
+                        printMap.put(p.getPrinterNo(), JuhePrintContentUtils.getContent(juhePrintContentVo));
+                        if (1 == p.getMakingStatus()) {
+                            detailDishesVos.forEach(v -> {
+                                List<DetailDishesVo> dv = new ArrayList<>();
+                                dv.add(v);
+                                juhePrintContentVo.setDishesVoList(dv);
+                                juhePrintContentVo.setType(3);
+                                printMap.put(p.getPrinterNo(), JuhePrintContentUtils.getContent(juhePrintContentVo));
+                            });
+                        }
+                    }
+                });
+            }
+        }
+        return printMap;
     }
 
     /**
@@ -414,7 +474,7 @@ public class PrinterInstanceBiz {
             //获取订单的商铺id
             String storeId = orderInstanceInfoVo.getStoreId();
             //菜品
-            List<DetailDishesVo> voList = orderInstanceInfoVo.getGoodSpuInfoList().stream().filter(g -> orderItemId == g.getOrderItemId()).map(g -> new DetailDishesVo(g.getGoodName(), g.getQuantity(), g.getPrice().doubleValue(), g.getRemark())).collect(Collectors.toList());
+            List<DetailDishesVo> voList = orderInstanceInfoVo.getGoodSpuInfoList().stream().filter(g -> orderItemId == g.getOrderItemId()).map(g -> new DetailDishesVo(g.getGoodName(), g.getQuantity(), g.getPrice().doubleValue(), g.getRemark(), null)).collect(Collectors.toList());
             //组装打印内容-制作单、
             JuhePrintContentVo contentVo = JuhePrintContentVo.builder().tableNo(orderInstanceInfoVo.getTableNo()).dishesVoList(voList).type(type).build();
             //打印内容
@@ -442,7 +502,16 @@ public class PrinterInstanceBiz {
      * @return
      */
     public Response getPrintStatus(String printerNo, Long printId) {
-        return Response.ok(juhePrintUtils.getPrintStatus(printerNo, printId));
+        JSONObject printStatus = juhePrintUtils.getPrintStatus(printerNo, printId);
+        if (ObjectUtils.isNotEmpty(printStatus) && 0 == printStatus.getInteger("code")) {
+            //查询成功 更新历史状态
+            printHistoryService.lambdaUpdate()
+                    .eq(PrintHistoryEntity::getPrinterNo, printerNo)
+                    .eq(PrintHistoryEntity::getPrintId, printId)
+                    .set(PrintHistoryEntity::getStateCode, printStatus.getJSONObject("data").getString("status"))
+                    .update();
+        }
+        return Response.ok(printStatus);
     }
 
     /**

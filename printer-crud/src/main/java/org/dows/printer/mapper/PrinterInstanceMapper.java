@@ -20,8 +20,12 @@ import java.util.List;
 @Mapper
 public interface PrinterInstanceMapper extends MybatisCrudMapper<PrinterInstanceEntity> {
 
+    @Select("SELECT room_name FROM store_table")
+    String getRoomNameByTableNo(@Param(Constants.WRAPPER) QueryWrapper wrapper);
+
     @Select("SELECT oi.spu_name,gs.category_name FROM order_item oi LEFT JOIN goods_spu gs ON oi.spu_id = gs.id ${ew.customSqlSegment}")
     List<PrintTypeVo> getSpuPrintType(@Param(Constants.WRAPPER) QueryWrapper wrapper);
+
 
 }
 

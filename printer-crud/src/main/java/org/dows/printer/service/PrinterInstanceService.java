@@ -1,10 +1,8 @@
 package org.dows.printer.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
-import org.apache.ibatis.annotations.Param;
-import org.dows.printer.entity.PrinterInstanceEntity;
 import org.dows.framework.crud.mybatis.MybatisCrudService;
+import org.dows.printer.entity.PrinterInstanceEntity;
 import org.dows.printer.vo.PrintTypeVo;
 
 import java.util.List;
@@ -17,6 +15,8 @@ import java.util.List;
  * @since 2023-02-06 18:25:04
  */
 public interface PrinterInstanceService extends MybatisCrudService<PrinterInstanceEntity> {
+
+    String getRoomNameByTableNo(QueryWrapper wrapper);
 
     List<PrintTypeVo> getSpuPrintType(QueryWrapper wrapper);
 }

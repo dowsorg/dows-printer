@@ -175,6 +175,18 @@ public class PrinterInstanceRest implements MybatisCrudRest<PrinterInstanceForm,
         return printerInstanceBiz.getPrintStatus(printerNo, printId);
     }
 
+    /**
+     * 查看订单打印结果
+     *
+     * @param orderNo 订单号 String必填
+     * @return
+     */
+    @GetMapping("/getPrintResByOrderNo")
+    @ApiOperation(value = "查看订单打印结果")
+    public Response getPrintResByOrderNo(@RequestParam String orderNo) {
+        return printerInstanceBiz.getPrintResByOrderNo(orderNo);
+    }
+
 
 }
 

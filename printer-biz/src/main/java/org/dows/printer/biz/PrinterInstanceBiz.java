@@ -19,6 +19,7 @@ import org.dows.printer.dto.PrintNoticeDTO;
 import org.dows.printer.entity.PrintHistoryEntity;
 import org.dows.printer.entity.PrinterInstanceEntity;
 import org.dows.printer.entity.PrinterStateEntity;
+import org.dows.printer.enums.PrintStateEnum;
 import org.dows.printer.service.PrintHistoryService;
 import org.dows.printer.service.PrinterInstanceService;
 import org.dows.printer.service.PrinterStateService;
@@ -312,33 +313,16 @@ public class PrinterInstanceBiz {
             if (CollectionUtils.isEmpty(prints)) {
                 return Response.fail("无可用在线就绪打印机！");
             }
-            List<String> printerNos = prints.stream().map(p -> p.getPrinterNo()).collect(Collectors.toList());
-            List<String> workPrinterNos = printerStateService.lambdaQuery()
-                    .in(PrinterStateEntity::getPrinterNo, printerNos)
-                    .eq(PrinterStateEntity::getWorkStatus, 0)
-                    .list()
-                    .stream()
-                    .map(p -> p.getPrinterNo())
-                    .collect(Collectors.toList());
-            Map<String, List<PrinterInstanceEntity>> printers = prints.stream().filter(p -> workPrinterNos.contains(p.getPrinterNo())).collect(Collectors.groupingBy(PrinterInstanceEntity::getPrinterSeat));
 
-            //前厅打印机
-            List<PrinterInstanceEntity> printerQT = printers.get("1");
-            //后厨打印机
-            List<PrinterInstanceEntity> printerHC = printers.get("2");
-            //获取需要进行打印任务的打印机
-            List<PrinterInstanceEntity> needs = new LinkedList<>();
-            Map<String, String> printMap = new ConcurrentHashMap<String, String>();
-            //匹配打印机和打印内容
-            //前厅判断
-            setPrintQT(printMap, printerQT, juhePrintContentVo, voList, orderInstanceInfoVo);
-            //后厨判断
-            setPrintHC(printMap, printerHC, juhePrintContentVo, voList, orderInstanceInfoVo);
+            Map<String, String> printMap = getprintMap(prints, juhePrintContentVo, voList, orderInstanceInfoVo);
+
+            if (printMap.isEmpty()) {
+                return Response.fail("无可用打印机！");
+            }
 
             //进行打印
-            if (!printMap.isEmpty()) {
-                printMap.forEach((k, v) -> syncPrint(k, orderNo, v));
-            }
+            printMap.forEach((k, v) -> syncPrint(k, orderNo, v));
+
             return Response.ok(1, "打印中");
         } catch (Exception e) {
             log.error("状态异常" + e.getMessage(), e);
@@ -346,21 +330,67 @@ public class PrinterInstanceBiz {
         }
     }
 
+    /**
+     * 获取打印任务
+     */
+    private Map<String, String> getprintMap(List<PrinterInstanceEntity> printers, JuhePrintContentVo juhePrintContentVo, List<DetailDishesVo> voList, OrderInstanceInfoVo orderInstanceInfoVo) {
+        //创建打印任务
+        Map<String, String> printMap = new ConcurrentHashMap<String, String>();
+        //获取打印机编号
+        List<String> printerNos = printers.stream().map(p -> p.getPrinterNo()).collect(Collectors.toList());
+        //获取在线就绪的打印机编号
+        List<String> workPrinterNos = printerStateService.lambdaQuery()
+                .in(PrinterStateEntity::getPrinterNo, printerNos)
+                .eq(PrinterStateEntity::getWorkStatus, 0)
+                .list()
+                .stream()
+                .map(p -> p.getPrinterNo())
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(workPrinterNos)) {
+            return printMap;
+        }
+        //将前台后厨打印机分组
+        Map<String, List<PrinterInstanceEntity>> printersMap = printers.stream().filter(p -> workPrinterNos.contains(p.getPrinterNo())).collect(Collectors.groupingBy(PrinterInstanceEntity::getPrinterSeat));
+        //前厅打印机
+        List<PrinterInstanceEntity> printerQT = printersMap.get("1");
+        //后厨打印机
+        List<PrinterInstanceEntity> printerHC = printersMap.get("2");
+
+        //匹配打印机和打印内容
+        //前厅任务
+        setPrintQT(printMap, printerQT, juhePrintContentVo, voList, orderInstanceInfoVo);
+        //后厨任务
+        setPrintHC(printMap, printerHC, juhePrintContentVo, voList, orderInstanceInfoVo);
+        //如果没有匹配打印机任务-找一台就绪的进行打印
+        if (printMap.isEmpty()) {
+            printMap.put(workPrinterNos.get(0), JuhePrintContentUtils.getContent(juhePrintContentVo));
+        }
+        return printMap;
+    }
+
+    /**
+     * 添加前厅打印任务
+     */
     private Map<String, String> setPrintQT(Map<String, String> printMap, List<PrinterInstanceEntity> printerQT, JuhePrintContentVo juhePrintContentVo, List<DetailDishesVo> voList, OrderInstanceInfoVo orderInstanceInfoVo) {
         //前厅判断
         if (CollectionUtils.isNotEmpty(printerQT)) {
+            Integer type = juhePrintContentVo.getType();
             if (printerQT.size() == 1) {
-                //获取打印内容
                 PrinterInstanceEntity pi = printerQT.get(0);
-                String content = JuhePrintContentUtils.getContent(juhePrintContentVo);
-                printMap.put(pi.getPrinterNo(), content);
+                //获取打印内容 1-总单  2-结账单（优惠信息）  3、制作单  4、加菜  5退菜
+                if (1 == type || 2 == type) {
+                    String content = JuhePrintContentUtils.getContent(juhePrintContentVo);
+                    printMap.put(pi.getPrinterNo(), content);
+                }
                 //是否打印制作单
                 if (1 == pi.getMakingStatus()) {
                     voList.forEach(v -> {
                         List<DetailDishesVo> dv = new ArrayList<>();
                         dv.add(v);
                         juhePrintContentVo.setDishesVoList(dv);
-                        juhePrintContentVo.setType(3);
+                        if (1 == type || 2 == type) {
+                            juhePrintContentVo.setType(3);
+                        }
                         printMap.put(pi.getPrinterNo(), JuhePrintContentUtils.getContent(juhePrintContentVo));
                     });
                 }
@@ -368,22 +398,31 @@ public class PrinterInstanceBiz {
                 //获取桌号
                 String tableNo = orderInstanceInfoVo.getTableNo();
                 //根据桌号获取桌号对应桌号区域
-                String roomName = "tableNo";
+                String roomName = printerInstanceService.getRoomNameByTableNo(Wrappers.query()
+                        .eq("table_no", tableNo)
+                        .eq("store_id", orderInstanceInfoVo.getStoreId()).last("LIMIT 1"));
+                if (ObjectUtils.isEmpty(roomName)) {
+                    return printMap;
+                }
                 //筛选对应打印机
                 printerQT.stream()
                         .filter(qt -> qt.getPrintArea().contains(roomName))
                         .collect(Collectors.toList())
                         .forEach(p -> {
                             //获取打印内容
-                            String content = JuhePrintContentUtils.getContent(juhePrintContentVo);
-                            printMap.put(p.getPrinterNo(), content);
+                            if (1 == type || 2 == type) {
+                                String content = JuhePrintContentUtils.getContent(juhePrintContentVo);
+                                printMap.put(p.getPrinterNo(), content);
+                            }
                             //是否打印制作单
                             if (1 == p.getMakingStatus()) {
                                 voList.forEach(v -> {
                                     List<DetailDishesVo> dv = new ArrayList<>();
                                     dv.add(v);
                                     juhePrintContentVo.setDishesVoList(dv);
-                                    juhePrintContentVo.setType(3);
+                                    if (1 == type || 2 == type) {
+                                        juhePrintContentVo.setType(3);
+                                    }
                                     printMap.put(p.getPrinterNo(), JuhePrintContentUtils.getContent(juhePrintContentVo));
                                 });
                             }
@@ -393,13 +432,32 @@ public class PrinterInstanceBiz {
         return printMap;
     }
 
+    /**
+     * 添加后厨打印任务
+     */
     private Map<String, String> setPrintHC(Map<String, String> printMap, List<PrinterInstanceEntity> printerHC, JuhePrintContentVo juhePrintContentVo, List<DetailDishesVo> voList, OrderInstanceInfoVo orderInstanceInfoVo) {
         //后厨判断
         if (CollectionUtils.isNotEmpty(printerHC)) {
+            Integer type = juhePrintContentVo.getType();
             if (printerHC.size() == 1) {
+                PrinterInstanceEntity pi = printerHC.get(0);
                 //获取打印内容
-                String content = JuhePrintContentUtils.getContent(juhePrintContentVo);
-                printMap.put(printerHC.get(0).getPrinterNo(), content);
+                if (1 == type || 2 == type) {
+                    String content = JuhePrintContentUtils.getContent(juhePrintContentVo);
+                    printMap.put(pi.getPrinterNo(), content);
+                }
+                //是否打印制作单
+                if (1 == pi.getMakingStatus()) {
+                    voList.forEach(v -> {
+                        List<DetailDishesVo> dv = new ArrayList<>();
+                        dv.add(v);
+                        juhePrintContentVo.setDishesVoList(dv);
+                        if (1 == type || 2 == type) {
+                            juhePrintContentVo.setType(3);
+                        }
+                        printMap.put(pi.getPrinterNo(), JuhePrintContentUtils.getContent(juhePrintContentVo));
+                    });
+                }
             } else {
                 //打印机类型与编号
                 Map<String, String> printTypeMap = new ConcurrentHashMap<String, String>();
@@ -439,14 +497,18 @@ public class PrinterInstanceBiz {
                 printerHC.forEach(p -> {
                     List<DetailDishesVo> detailDishesVos = printerHCMap.get(p.getPrinterNo());
                     if (CollectionUtils.isNotEmpty(detailDishesVos)) {
-                        juhePrintContentVo.setDishesVoList(detailDishesVos);
-                        printMap.put(p.getPrinterNo(), JuhePrintContentUtils.getContent(juhePrintContentVo));
+                        if (1 == type || 2 == type) {
+                            juhePrintContentVo.setDishesVoList(detailDishesVos);
+                            printMap.put(p.getPrinterNo(), JuhePrintContentUtils.getContent(juhePrintContentVo));
+                        }
                         if (1 == p.getMakingStatus()) {
                             detailDishesVos.forEach(v -> {
                                 List<DetailDishesVo> dv = new ArrayList<>();
                                 dv.add(v);
                                 juhePrintContentVo.setDishesVoList(dv);
-                                juhePrintContentVo.setType(3);
+                                if (1 == type || 2 == type) {
+                                    juhePrintContentVo.setType(3);
+                                }
                                 printMap.put(p.getPrinterNo(), JuhePrintContentUtils.getContent(juhePrintContentVo));
                             });
                         }
@@ -477,15 +539,22 @@ public class PrinterInstanceBiz {
             List<DetailDishesVo> voList = orderInstanceInfoVo.getGoodSpuInfoList().stream().filter(g -> orderItemId == g.getOrderItemId()).map(g -> new DetailDishesVo(g.getGoodName(), g.getQuantity(), g.getPrice().doubleValue(), g.getRemark(), null)).collect(Collectors.toList());
             //组装打印内容-制作单、
             JuhePrintContentVo contentVo = JuhePrintContentVo.builder().tableNo(orderInstanceInfoVo.getTableNo()).dishesVoList(voList).type(type).build();
-            //打印内容
-            String content = JuhePrintContentUtils.getContent(contentVo);
             //打印机
             List<PrinterInstanceEntity> prints = printerInstanceService.lambdaQuery().eq(PrinterInstanceEntity::getStoreId, storeId).eq(PrinterInstanceEntity::getMakingStatus, 1).list();
+
             if (CollectionUtils.isEmpty(prints)) {
                 return Response.fail("无可用打印机！");
             }
+
+            Map<String, String> printMap = getprintMap(prints, contentVo, voList, orderInstanceInfoVo);
+
+            if (printMap.isEmpty()) {
+                return Response.fail("无可用打印机！");
+            }
+
             //进行打印
-            syncPrint(prints.get(0).getPrinterNo(), orderNo, content);
+            printMap.forEach((k, v) -> syncPrint(k, orderNo, v));
+
             return Response.ok(1, "打印中");
         } catch (Exception e) {
             log.error("printMakeOrder失败：{}", e.getMessage());
@@ -515,6 +584,39 @@ public class PrinterInstanceBiz {
     }
 
     /**
+     * 查看订单打印状态
+     *
+     * @param orderNo 订单号 String必填
+     * @return
+     */
+    public Response getPrintResByOrderNo(String orderNo) {
+        //打印状态码  0 待打印，1 打印中，2 打印成功 3 打印失败
+        //根据订单号查询打印历史
+        List<PrintHistoryEntity> phs = printHistoryService.lambdaQuery().eq(PrintHistoryEntity::getOrderNo, orderNo).eq(PrintHistoryEntity::getFlag, false).list();
+        if (CollectionUtils.isEmpty(phs)) {
+            return Response.fail();
+        }
+        phs.forEach(p -> {
+            JSONObject printStatus = juhePrintUtils.getPrintStatus(p.getOrderNo(), p.getPrintId());
+            if (ObjectUtils.isNotEmpty(printStatus) && 0 == printStatus.getInteger("code")) {
+                //查询成功 更新历史状态
+                String status = printStatus.getJSONObject("data").getString("status");
+                p.setStateCode(status);
+            }
+        });
+        printHistoryService.updateBatchById(phs);
+
+        //成功打印的
+        Map<String, List<PrintHistoryEntity>> collect = phs.stream().collect(Collectors.groupingBy(PrintHistoryEntity::getStateCode));
+        List<PrintHistoryEntity> printoks = collect.get(PrintStateEnum.print_ok.getCode());
+        if (CollectionUtils.isNotEmpty(printoks) && phs.size() == printoks.size()) {
+            return Response.ok(collect, PrintStateEnum.print_ok.getName());
+        } else {
+            return Response.ok(collect, PrintStateEnum.print_unok.getName());
+        }
+    }
+
+    /**
      * 异步订单打印
      *
      * @param sn      打印机编号
@@ -528,7 +630,7 @@ public class PrinterInstanceBiz {
                 //如果打印成功，更改打印状态以及记录打印条数
                 JSONObject parseObject = juhePrintUtils.print(sn, content, true);
                 log.info("订单{}异步打印返回结果：{}", orderNo, parseObject);
-                PrintHistoryEntity ph = PrintHistoryEntity.builder().printerNo(sn).params(content).orderNo(orderNo).build();
+                PrintHistoryEntity ph = PrintHistoryEntity.builder().printerNo(sn).params(content).orderNo(orderNo).flag(Boolean.FALSE).build();
                 if (parseObject.getInteger("code") == 0) {
                     //检测排队数量，如果超过10个不进行排队
                     JSONObject dataJsonObj = parseObject.getJSONObject("data");
@@ -544,6 +646,8 @@ public class PrinterInstanceBiz {
                     }
                 }
                 //打印历史保存
+                printHistoryService.update(Wrappers.<PrintHistoryEntity>lambdaUpdate()
+                        .eq(PrintHistoryEntity::getOrderNo, orderNo).set(PrintHistoryEntity::getFlag, Boolean.TRUE));
                 printHistoryService.save(ph);
             });
             thread.start();

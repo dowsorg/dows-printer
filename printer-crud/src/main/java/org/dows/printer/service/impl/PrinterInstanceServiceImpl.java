@@ -21,6 +21,11 @@ import java.util.List;
 public class PrinterInstanceServiceImpl extends MybatisCrudServiceImpl<PrinterInstanceMapper, PrinterInstanceEntity> implements PrinterInstanceService {
 
     @Override
+    public String getRoomNameByTableNo(QueryWrapper wrapper) {
+        return baseMapper.getRoomNameByTableNo(wrapper);
+    }
+
+    @Override
     public List<PrintTypeVo> getSpuPrintType(QueryWrapper wrapper) {
         return baseMapper.getSpuPrintType(wrapper);
     }

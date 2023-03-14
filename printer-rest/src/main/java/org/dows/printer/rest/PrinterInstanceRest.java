@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dows.framework.api.Response;
 import org.dows.framework.crud.mybatis.MybatisCrudRest;
 import org.dows.printer.biz.PrinterInstanceBiz;
+import org.dows.printer.bo.PrintOrderBO;
 import org.dows.printer.dto.PrintContentDTO;
 import org.dows.printer.dto.PrintNoticeDTO;
 import org.dows.printer.entity.PrinterInstanceEntity;
@@ -106,59 +107,60 @@ public class PrinterInstanceRest implements MybatisCrudRest<PrinterInstanceForm,
     /**
      * 打印总单
      *
-     * @param orderNo 订单号 String必填
+     * @param -orderNo 订单号 String必填
      */
     @PostMapping("/printMasterOrder")
     @ApiOperation(value = "打印总单")
-    public Response printMasterOrder(@RequestParam String orderNo) {
-        return printerInstanceBiz.printMasterOrder(orderNo);
+    public Response printMasterOrder(@RequestBody PrintOrderBO printOrderBO) {
+        return printerInstanceBiz.printMasterOrder(printOrderBO.getOrderNo());
     }
 
     /**
      * 打印制作单
      *
-     * @param orderNo     订单id String必填
-     * @param orderItemId 订单项id 必填
+     * @param -orderNo     订单id String必填
+     * @param -orderItemId 订单项id 必填
      */
     @PostMapping("/printMakeOrder")
     @ApiOperation(value = "打印制作单")
-    public Response printMakeOrder(@RequestParam String orderNo, @RequestParam Long orderItemId) {
-        return printerInstanceBiz.printMakeOrder(orderNo, orderItemId, 3);
+    public Response printMakeOrder(@RequestBody PrintOrderBO printOrderBO) {
+        return printerInstanceBiz.printMakeOrder(printOrderBO.getOrderNo(), printOrderBO.getOrderItemId(), 3);
     }
+
 
     /**
      * 打印加菜单
      *
-     * @param orderNo     订单id String必填
-     * @param orderItemId 订单项id 必填
+     * @param -orderNo     订单id String必填
+     * @param -orderItemId 订单项id 必填
      */
     @PostMapping("/printAddOrder")
     @ApiOperation(value = "打印加菜单")
-    public Response printAddOrder(@RequestParam String orderNo, @RequestParam Long orderItemId) {
-        return printerInstanceBiz.printMakeOrder(orderNo, orderItemId, 4);
+    public Response printAddOrder(@RequestBody PrintOrderBO printOrderBO) {
+        return printerInstanceBiz.printMakeOrder(printOrderBO.getOrderNo(), printOrderBO.getOrderItemId(), 4);
     }
 
     /**
      * 打印退菜单
      *
-     * @param orderNo     订单id String必填
-     * @param orderItemId 订单项id 必填
+     * @param -orderNo     订单id String必填
+     * @param -orderItemId 订单项id 必填
      */
     @PostMapping("/printRemoveOrder")
     @ApiOperation(value = "打印退菜单")
-    public Response printRemoveOrder(@RequestParam String orderNo, @RequestParam Long orderItemId) {
-        return printerInstanceBiz.printMakeOrder(orderNo, orderItemId, 5);
+    public Response printRemoveOrder(@RequestBody PrintOrderBO printOrderBO) {
+        return printerInstanceBiz.printMakeOrder(printOrderBO.getOrderNo(), printOrderBO.getOrderItemId(), 5);
     }
 
     /**
      * 打印结账单
      *
-     * @param orderNo 订单id String必填
+     * @param -orderNo 订单id String必填
      */
     @PostMapping("/printCheckoutOrder")
     @ApiOperation(value = "打印结账单")
-    public Response printCheckoutOrder(@RequestParam String orderNo) {
-        return printerInstanceBiz.printMasterOrder(orderNo);
+    public Response printCheckoutOrder(@RequestBody PrintOrderBO printOrderBO) {
+        return printerInstanceBiz.printMasterOrder(printOrderBO.getOrderNo());
     }
 
 
